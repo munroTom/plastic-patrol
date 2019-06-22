@@ -21,9 +21,9 @@ const CUSTOM_STRING = {
   },
   about: {
     "We are Geovation and we Geovate": "#PlasticPatrol is about engaging people with the issue of plastic pollution through adventure and nature, helping to safeguard our seas for the future.\n\n" +
-    "Our mission is to combat the global plastic crisis by stopping the problem at its source – in our waterways.\n\n" +
-    "Every single piece of plastic collected and shared on social media as part of the #PlasticPatrol movement is captured in our interactive map, creating a picture of the problem on a global scale for the very first time.\n\n" +
-    "Using this app you can get involved. Simply take a photo of what you find by pressing the camera button and upload it directly to the map. After it has been approved you will be able to view the images by pressing the globe button."
+      "Our mission is to combat the global plastic crisis by stopping the problem at its source – in our waterways.\n\n" +
+      "Every single piece of plastic collected and shared on social media as part of the #PlasticPatrol movement is captured in our interactive map, creating a picture of the problem on a global scale for the very first time.\n\n" +
+      "Using this app you can get involved. Simply take a photo of what you find by pressing the camera button and upload it directly to the map. After it has been approved you will be able to view the images by pressing the globe button."
   },
   writeFeedback: {
     "admin@geovation.uk": "lizzieoutside@icloud.com"
@@ -90,7 +90,7 @@ const getStats = async (photos) => {
   Object.keys(photoObj.features).forEach(key => {
     const properties = photoObj.features[key].properties;
     const pieces = Number(properties.pieces);
-    if (!isNaN(pieces) && pieces > 0 ) totalPieces += pieces;
+    if (!isNaN(pieces) && pieces > 0) totalPieces += pieces;
   });
   return totalPieces;
 }
@@ -134,7 +134,7 @@ export default {
       title: 'Number of pieces collected',
       type: enums.TYPES.number,
       placeholder: 'eg. 123',
-      inputProps: {min: 0, step: 1},
+      inputProps: { min: 0, step: 1 },
       regexValidation: '^[0-9]+',
       component: TitleTextField
     },
@@ -149,8 +149,8 @@ export default {
 
       subfields: {
         number: {
-          component : TitleTextField,
-          inputProps: { min: 0, step: 1},
+          component: TitleTextField,
+          inputProps: { min: 0, step: 1 },
           name: 'number',
           title: 'Number',
           type: enums.TYPES.number,
@@ -158,21 +158,21 @@ export default {
           regexValidation: '^[0-9]+'
         },
         brand: {
-          component : TitleTextField,
+          component: TitleTextField,
           name: 'brand',
           title: 'Brand',
           type: enums.TYPES.string,
           placeholder: 'eg. whatever',
-          regexValidation: '^\\w+( \\w+)*$'
+          regexValidation: '^\\w+( \\w+| )*$'
         },
       }
     }
   },
   PAGES,
-  CUSTOM_PAGES:[
+  CUSTOM_PAGES: [
     {
       visible: true,
-      icon: <EventIcon/>,
+      icon: <EventIcon />,
       label: PAGES.events.label,
       click: () => window.location = 'https://plasticpatrol.co.uk/clean-ups/'
     },
