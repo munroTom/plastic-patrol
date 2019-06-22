@@ -33,7 +33,7 @@ const emptyState = {
   sending: false,
   sendingProgress: 0,
   anyError: true,
-  enabledUploadButton:true,
+  enabledUploadButton: true,
   next: false,
   fieldsValues: {}
 };
@@ -49,17 +49,17 @@ const styles = theme => ({
   },
   button: {
     display: 'flex',
-    justifyContent:'center',
+    justifyContent: 'center',
     alignItems: 'center'
   },
   dialogContentProgress: {
     display: 'flex',
-    flexDirection:'column',
+    flexDirection: 'column',
     alignItems: 'center'
   },
-  linearProgress : {
-    width:'100%',
-    height:'100%'
+  linearProgress: {
+    width: '100%',
+    height: '100%'
   },
   link: {
     color: theme.palette.secondary.main
@@ -83,7 +83,7 @@ const styles = theme => ({
 class PhotoPage extends Component {
   constructor(props) {
     super(props);
-    this.state = {...emptyState};
+    this.state = { ...emptyState };
     this.dialogCloseCallback = null;
     this.cancelClickUpload = false;
   }
@@ -175,29 +175,31 @@ class PhotoPage extends Component {
     }, {});
 
     let filteredFields = {};
-    Object.entries(fieldsJustValues).forEach(([key,value]) =>{
-       if(value){
-         filteredFields[key] = value;
-       }
-     });
+    Object.entries(fieldsJustValues).forEach(([key, value]) => {
+      if (value) {
+        value = this.sanitiseField(value, key)
 
-    const data = { ...location, ...filteredFields};
+        filteredFields[key] = value;
+      }
+    });
 
-    this.setState({ sending: true, sendingProgress: 0, enabledUploadButton :false });
+    const data = { ...location, ...filteredFields };
+
+    this.setState({ sending: true, sendingProgress: 0, enabledUploadButton: false });
     this.uploadTask = null;
     this.cancelClickUpload = false;
 
     let photoRef;
-    try{
+    try {
       photoRef = await dbFirebase.saveMetadata(data);
     }
-    catch(error){
+    catch (error) {
       console.log(error);
     }
 
-    this.setState({ sendingProgress : 1 ,enabledUploadButton: true});
+    this.setState({ sendingProgress: 1, enabledUploadButton: true });
 
-    if(!this.cancelClickUpload){
+    if (!this.cancelClickUpload) {
 
       const base64 = this.state.imgSrc.split(",")[1];
       this.uploadTask = dbFirebase.savePhoto(photoRef.id, base64);
@@ -217,13 +219,26 @@ class PhotoPage extends Component {
             console.log(snapshot.state);
         }
 
-        }, error => {
-          this.openDialog('Photo upload was canceled');
-        }, () => {
-          this.openDialog("Photo was uploaded successfully. It will be reviewed by our moderation team.", this.handleClosePhotoPage);
-        }
+      }, error => {
+        this.openDialog('Photo upload was canceled');
+      }, () => {
+        this.openDialog("Photo was uploaded successfully. It will be reviewed by our moderation team.", this.handleClosePhotoPage);
+      }
       );
     }
+  }
+
+  sanitiseField = (field, key) => {
+    const { categories: { name } } = config.PHOTO_FIELDS
+    if (key === name) {
+      return field.map(category => {
+        const { brand, ...other } = category
+        return {
+          ...other, brand: brand.trim()
+        }
+      })
+    }
+    return field
   }
 
   loadImage = () => {
@@ -246,7 +261,7 @@ class PhotoPage extends Component {
     }
 
     loadImage(
-      this.props.file, (img) =>{
+      this.props.file, (img) => {
         let imgFromCamera;
         const imgSrc = img.toDataURL("image/jpeg");
         if (window.cordova) {
@@ -257,7 +272,7 @@ class PhotoPage extends Component {
           }
         } else {
           const fileDate = this.props.file.lastModified;
-          const ageInMinutes = (new Date().getTime() - fileDate)/1000/60;
+          const ageInMinutes = (new Date().getTime() - fileDate) / 1000 / 60;
           imgFromCamera = isNaN(ageInMinutes) || ageInMinutes < 0.5;
         }
 
@@ -275,14 +290,14 @@ class PhotoPage extends Component {
 
         if (!imgLocation) {
           this.openDialog(
-            <span style={{fontWeight:500}}>
-            Your photo isn't geo-tagged so it can't be uploaded.
-            To fix this manually, you can geo-tag it online with a tool like&nbsp;
+            <span style={{ fontWeight: 500 }}>
+              Your photo isn't geo-tagged so it can't be uploaded.
+              To fix this manually, you can geo-tag it online with a tool like&nbsp;
               <Link href={'https://tool.geoimgr.com/'} className={this.props.classes.link}>
-              Geoimgr
+                Geoimgr
             </Link>.
-            In future, make sure GPS is enabled and your
-            camera has access to it.
+                                        In future, make sure GPS is enabled and your
+                                        camera has access to it.
           </span>
           );
 
@@ -309,7 +324,7 @@ class PhotoPage extends Component {
   };
 
   handleCancel = () => {
-    this.setState({ sending:false });
+    this.setState({ sending: false });
 
     if (this.uploadTask) {
       this.uploadTask.cancel();
@@ -321,11 +336,11 @@ class PhotoPage extends Component {
   }
 
   handleNext = () => {
-    this.setState({ next:true });
+    this.setState({ next: true });
   }
 
   handlePrev = () => {
-    this.setState({ next:false });
+    this.setState({ next: false });
   }
 
   componentDidMount() {
@@ -339,7 +354,7 @@ class PhotoPage extends Component {
   }
 
   handleChangeFields = (anyError, fieldsValues) => {
-    this.setState({anyError, fieldsValues});
+    this.setState({ anyError, fieldsValues });
   }
 
   render() {
@@ -361,19 +376,19 @@ class PhotoPage extends Component {
           {this.state.next
             ?
             <div className={classes.fields}>
-            <Fields
-              handleChange={this.handleChangeFields}
-              sendFile={this.sendFile}
-              enabledUploadButton={this.state.enabledUploadButton}
-              imgSrc={this.state.imgSrc}
-              fields={fields}
-              error={this.state.anyError}
+              <Fields
+                handleChange={this.handleChangeFields}
+                sendFile={this.sendFile}
+                enabledUploadButton={this.state.enabledUploadButton}
+                imgSrc={this.state.imgSrc}
+                fields={fields}
+                error={this.state.anyError}
               />
             </div>
             :
-            <div style={{display:'flex',flexDirection:'column',flex:1}} className={classes.photo}>
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }} className={classes.photo}>
               <div className='picture'>
-               <img src={this.state.imgSrc} alt={""}/>
+                <img src={this.state.imgSrc} alt={""} />
               </div>
 
               <div className={classes.button}>
@@ -408,7 +423,7 @@ class PhotoPage extends Component {
                 {this.state.sendingProgress} % done. Be patient ;)
               </DialogContentText>
               <div className={classes.linearProgress}>
-                <br/>
+                <br />
                 <LinearProgress variant="determinate" color='secondary' value={this.state.sendingProgress} />
               </div>
             </DialogContent>
