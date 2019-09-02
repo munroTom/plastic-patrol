@@ -15,6 +15,7 @@ import Chip from '@material-ui/core/Chip';
 import MenuItem from '@material-ui/core/MenuItem';
 import CancelIcon from '@material-ui/icons/Cancel';
 import { emphasize } from '@material-ui/core/styles/colorManipulator';
+import _ from 'lodash';
 import { getValueFromTree } from '../../utils';
 
 
@@ -37,7 +38,7 @@ const styles = theme => ({
     overflow: 'hidden',
   },
   chip: {
-    margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`,
+    margin: `${theme.spacing(1/2)}px ${theme.spacing(1/4)}px`,
   },
   chipFocused: {
     backgroundColor: emphasize(
@@ -46,7 +47,7 @@ const styles = theme => ({
     ),
   },
   noOptionsMessage: {
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`,
+    padding: `${theme.spacing(1)}px ${theme.spacing(2)}px`,
   },
   singleValue: {
     fontSize: 16,
@@ -59,12 +60,12 @@ const styles = theme => ({
   paper: {
     position: 'absolute',
     zIndex: 1,
-    marginTop: theme.spacing.unit,
+    marginTop: theme.spacing(1),
     left: 0,
     right: 0,
   },
   divider: {
-    height: theme.spacing.unit * 2,
+    height: theme.spacing(2),
   },
   cssUnderline: {
     '&:after': {
@@ -164,7 +165,7 @@ function MultiValue(props) {
 
 function Menu(props) {
   return (
-    <Paper square className={props.selectProps.classes.paper} {...props.innerProps}>
+    <Paper elevation={2} square className={props.selectProps.classes.paper} {...props.innerProps}>
       {props.children}
     </Paper>
   );
@@ -245,9 +246,12 @@ class SelectControlSingleValue extends React.Component {
   }
 
   initializeOptions = (data) => {
-    const options = Object
+    const unsortedOptions = Object
                   .entries(data)
                   .map(([key,value]) => ({label: value.label, key: value.key }));
+
+    const options = _.sortBy(unsortedOptions, "label");
+
     this.options = options;
     this.setState({ options });
   }

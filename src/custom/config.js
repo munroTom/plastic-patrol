@@ -1,10 +1,22 @@
 import React from 'react';
+
+import AccountCircleIcon from '@material-ui/icons/AccountCircle';
+import CheckCircleIcon from '@material-ui/icons/CheckCircle';
+import SchoolIcon from '@material-ui/icons/School';
+import DashboardIcon from '@material-ui/icons/Dashboard';
+import HelpIcon from '@material-ui/icons/Help';
 import EventIcon from '@material-ui/icons/Event';
+import FeedbackIcon from '@material-ui/icons/Feedback';
+import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
+
+import _ from 'lodash';
 
 import styles from './config.scss';
 import enums from '../types/enums';
+
 import TitleTextField from '../components/PhotoPage/TitleTextField';
 import MultiFields from '../components/PhotoPage/MultiFields';
+
 import { data } from './categories';
 
 const primaryColor = styles.primary;
@@ -36,7 +48,8 @@ const CUSTOM_STRING = {
     "Privacy Policy": "Privacy Policy ",
     "T&C link": "https://plasticpatrol.co.uk/terms-and-conditions/",
     "Privacy Policy Link": "https://plasticpatrol.co.uk/privacy-policy/"
-  }
+  },
+  tweetMessage: "Check out this rubbish shared on the @Plastic_Patrol app for global citizen science. Researchers analyse everything collected and use it as evidence to help tackle the problem. #PlasticPatrol"
 };
 
 const PAGES = {
@@ -54,79 +67,87 @@ const PAGES = {
   },
   moderator: {
     path: "/moderator",
-    label: "Photo Approval"
+    label: "Photo Approval",
+    icon: <CheckCircleIcon/>,
+    visible: (user, online) => user && user.isModerator
   },
   account: {
     path: "/account",
-    label: "Account"
+    label: "Account",
+    icon: <AccountCircleIcon/>,
+    visible: (user, online) => user
   },
   about: {
     path: "/about",
-    label: "About"
+    label: "About",
+    visible: (user, online) => true,
+    icon: <HelpIcon/>,
   },
   tutorial: {
     path: "/tutorial",
-    label: "Tutorial"
+    label: "Tutorial",
+    visible: (user, online) => true,
+    icon: <SchoolIcon/>,
   },
   writeFeedback: {
     path: "/write-feedback",
-    label: "Feedback"
+    label: "Feedback",
+    visible: (user, online) => true,
+    icon: <FeedbackIcon/>,
   },
   events: {
-    path: "/events",
-    label: "Clean-ups"
+      path: "/events",
+      label: "Clean-ups"
   },
   partners: {
-    path: "/partners",
-    label: "Partners"
+      path: "/partners",
+      label: "Partners"
   },
+  leaderboard: {
+    path: "/leaderboard",
+    label: "Leaderboard",
+    visible: (user, online) => true,
+    icon: <DashboardIcon/>,
+  },
+  feedbackReports: {
+    path: "/feedback-reports",
+    label: "Feedback Reports",
+    icon: <LibraryBooksIcon/>,
+    visible: (user, online) => user && user.isModerator
+  },
+  feedbackDetails: {
+    path: "/feedback-details",
+    label: "Feedback Details"
+  },
+  displayPhoto: {
+    path: "/photos",
+    label: "photos"
+  }
 };
 
-const customiseString = (page, key) => (CUSTOM_STRING[page][key] || key);
+const STATIC_CONFIG = require("./config.json");
 
-const getStats = async (photos) => {
-  let totalPieces = 0;
-  const photoObj = await photos;
-  Object.keys(photoObj.features).forEach(key => {
-    const properties = photoObj.features[key].properties;
-    const pieces = Number(properties.pieces);
-    if (!isNaN(pieces) && pieces > 0 ) totalPieces += pieces;
-  });
-  return totalPieces;
-}
-
-export default {
+export default { ...STATIC_CONFIG,
+  CUSTOM_STRING,
   MAX_IMAGE_SIZE: 2048,
   THEME: {
-    typography: {
-      useNextVariants: true,
-    },
     palette: {
       primary: { main: primaryColor },
       secondary: { main: secondaryColor },
     },
-    spacing: {
-      unit: 10
-    }
+    spacing: 10
   },
   MAP_SOURCE: "mapbox://styles/mapbox/streets-v10",
   // MAP_SOURCE: "https://s3-eu-west-1.amazonaws.com/tiles.os.uk/styles/open-zoomstack-outdoor/style.json",
   // MAP_ATTRIBUTION: "Contains OS data &copy; Crown copyright and database rights 2018",
   MAPBOX_TOKEN: "pk.eyJ1Ijoic2ViYXN0aWFub3ZpZGVnZW92YXRpb251ayIsImEiOiJjanBqZzRmNHgwNXljM2tydHlkM29id3FwIn0.-1V8Ue9P6eQr8FGghaTYiw",
-  FIREBASE: {
-    apiKey: "AIzaSyBbN8z-zSqChaQkTyOtIZZ3apq0qg59FzI",
-    authDomain: "plastic-patrol-fd3b3.firebaseapp.com",
-    databaseURL: "https://plastic-patrol-fd3b3.firebaseio.com",
-    projectId: "plastic-patrol-fd3b3",
-    storageBucket: "plastic-patrol-fd3b3.appspot.com",
-    messagingSenderId: "845679623528"
-  },
   GA_TRACKING_ID: "UA-126516084-1",
   PHOTO_ZOOMED_FIELDS: {
     "updated": s => new Date(s).toDateString(),
     "pieces": s => s
   },
   ZOOM: 5,
+  ZOOM_FLYTO: 15,
   CENTER: [-2, 55],
   PHOTO_FIELDS: {
     pieces: {
@@ -146,6 +167,12 @@ export default {
       placeholder: 'Add litter category',
       data: data,
       noOptionsMessage: 'No more categories',
+      sanitize: value => {
+        _.forEach(value, category => {
+          category.brand = category.brand.replace && category.brand.replace(/\s+/g, ' ').trim();
+        });
+        return value;
+      },
 
       subfields: {
         number: {
@@ -163,7 +190,7 @@ export default {
           title: 'Brand',
           type: enums.TYPES.string,
           placeholder: 'eg. whatever',
-          regexValidation: '^\\w+( \\w+)*$'
+          regexValidation: '.+'
         },
       }
     }
@@ -171,16 +198,26 @@ export default {
   PAGES,
   CUSTOM_PAGES:[
     {
-      visible: true,
+      visible: (user, online) => true,
       icon: <EventIcon/>,
       label: PAGES.events.label,
       click: () => window.location = 'https://plasticpatrol.co.uk/clean-ups/'
     },
   ],
-  customiseString,
-  getStats,
-  ENABLE_GRAVATAR_PROFILES: true,  //To update user-profile from Gravatar, value: ture or false.
+  getStats: (photos, dbStats) => (dbStats && dbStats.pieces) || 0,
+  ENABLE_GRAVATAR_PROFILES: true,  //To update user-profile from Gravatar, value: true or false.
   SECURITY: {
     UPLOAD_REQUIRES_LOGIN: true
+  },
+  API: {
+    URL: "https://api.plasticpatrol.co.uk",
+    // URL: "https://us-central1-plastic-patrol-fd3b3.cloudfunctions.net/api",
+    // URL: "http://localhost:5000/plastic-patrol-fd3b3/us-central1/api"
+  },
+  MODERATING_PHOTOS: 15,
+  LEADERBOARD_FIELD: {
+      label: "Pieces",
+      field: "pieces",
+      displayedUsers: 20,
   }
 }

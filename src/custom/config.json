@@ -1,0 +1,20 @@
+{
+  "FIREBASE": {
+    "apiKey": "AIzaSyBbN8z-zSqChaQkTyOtIZZ3apq0qg59FzI",
+    "authDomain": "plastic-patrol-fd3b3.firebaseapp.com",
+    "databaseURL": "https://plastic-patrol-fd3b3.firebaseio.com",
+    "projectId": "plastic-patrol-fd3b3",
+    "storageBucket": "plastic-patrol-fd3b3.appspot.com",
+    "messagingSenderId": "845679623528"
+  },
+  "metadata": {
+    "metadataServerUrl": "https://md.plasticpatrol.co.uk",
+    "serverUrl": "https://app.plasticpatrol.co.uk",
+    "twSite": "@Plastic_Patrol",
+    "twCreator": "@LizzieOutside",
+    "twDomain": "www.plasticpatrol.co.uk",
+    "_twDescriptionField": "pieces",
+    "twDescription": "The global movement that is crowdsource cleaning the planet. Download the Plastic Patrol app to join the movement!",
+    "twTitle": "Plastic Patrol"
+  }
+}

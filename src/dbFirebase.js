@@ -1,11 +1,14 @@
 import firebase from 'firebase/app';
-import * as _ from 'lodash'
+import _ from 'lodash'
 
 import firebaseApp from './firebaseInit.js';
 import config from "./custom/config";
+import * as localforage from "localforage";
 
 const firestore = firebase.firestore();
 const storageRef = firebase.storage().ref();
+
+// TODO: add caching
 
 function extractPhoto(doc) {
   const prefix = `https://storage.googleapis.com/${storageRef.location.bucket}/photos/${doc.id}`;
@@ -28,56 +31,48 @@ function extractPhoto(doc) {
   return photo;
 }
 
-/**
- *
- * @returns {Promise<{geojson}>}
- */
-async function fetchPhotos() {
-
-  // for making it realtime: https://firebase.google.com/docs/firestore/query-data/listen
-  const promise = firestore.collection("photos").where("published", "==", true).get()
-    .then(querySnapshot => {
-      const geojson = {
-        "type": "FeatureCollection",
-        "features": []
-      };
-
-      querySnapshot.forEach( doc => {
-        const photo = extractPhoto(doc);
-        console.debug(`${doc.id} =>`, photo);
-
-        const feature = {
-          "type": "Feature",
-          "geometry": {
-            "type": "Point",
-            "coordinates": [
-              photo.location.longitude,
-              photo.location.latitude
-            ]
-          },
-          "properties": photo
-        };
-
-        geojson.features.push(feature);
-      });
-
-      localStorage.setItem("cachedGeoJson", JSON.stringify(geojson));
-
-      return geojson;
+function photosRT(addedFn, modifiedFn, removedFn, errorFn) {
+  firestore.collection("photos").where("published", "==", true).onSnapshot( snapshot => {
+    snapshot.docChanges().forEach( change => {
+      const photo = extractPhoto(change.doc);
+      if (change.type === "added") {
+        addedFn(photo);
+      } else if (change.type === "modified") {
+        modifiedFn(photo);
+      } else if (change.type === "removed") {
+        removedFn(photo);
+      } else {
+        console.error(`the photo ${photo.id} as type ${change.type}`);
+      }
     });
+  }, errorFn);
+}
 
-  // get features from local storage
-  let geojson;
-  try {
-    geojson = JSON.parse(localStorage.getItem("cachedGeoJson"));
-  } catch (e) {
-    console.log(e);
-  }
+const configObserver = (onNext, onError) => {
+  localforage.getItem("config").then(onNext).catch(console.log);
 
-  if (!geojson) {
-    geojson = await promise;
-  }
-  return geojson;
+  return firestore.collection("sys").doc("config")
+    .onSnapshot( snapshot => {
+      const config = snapshot.data();
+      localforage.setItem("config", config);
+      onNext(config);
+    }, onError);
+}
+
+async function fetchStats() {
+  return fetch(config.API.URL + "/stats", {mode: "cors"})
+    .then(response => response.json());
+}
+
+function fetchFeedbacks(isShowAll) {
+  let query = firestore.collection('feedbacks')
+    .orderBy("updated",  "desc")
+    .limit( (config.FEEDBACKS && config.FEEDBACKS.MAX) || 50);
+  return query.get()
+    .then(sn => sn.docs.map(doc => {
+      return ({...doc.data(), id: doc.id});
+    }))
+    .then( feedbacks => feedbacks.filter(feedback => !feedback.resolved || isShowAll));
 }
 
 function saveMetadata(data) {
@@ -113,25 +108,66 @@ async function getUser(id) {
   return fbUser.exists ? fbUser.data() : null;
 }
 
-function onPhotosToModerate(fn) {
-  return firestore.collection('photos').where("moderated", "==", null ).onSnapshot((sn) => {
-    const docs = sn.docs.map(extractPhoto);
-    fn(docs);
-  });
+async function getFeedbackByID(id) {
+  const fbFeedback = await firestore.collection("feedbacks").doc(id).get();
+  return fbFeedback.exists ? { id, ...fbFeedback.data()} : null;
 }
 
-async function rejectPhoto(photoId,userId) {
-  return await firestore.collection('photos').doc(photoId).update({
-    moderated: firebase.firestore.FieldValue.serverTimestamp(),
-    published: false,
-    moderator_id: userId
-  });
+async function getPhotoByID(id) {
+  const fbPhoto =  await firestore.collection("photos").doc(id).get();
+  const photo = extractPhoto(fbPhoto);
+  if(fbPhoto.exists) {
+    return {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          photo.location.longitude,
+          photo.location.latitude
+        ]
+      },
+      "properties": photo
+    };
+  }
+  return null;
 }
 
-async function approvePhoto(photoId,userId) {
-  return await firestore.collection('photos').doc(photoId).update({
+/**
+ *
+ * @param howMany
+ * @param photos object to keep up to date
+ * @returns {() => void}
+ */
+function photosToModerateRT(howMany, updatePhotoToModerate, removePhotoToModerate) {
+
+  return firestore.collection('photos')
+    .where('moderated', "==", null)
+    .orderBy("updated", "desc")
+    .limit(howMany)
+    .onSnapshot(snapshot => {
+      snapshot.docChanges().forEach( change => {
+        const photo = extractPhoto(change.doc);
+        if (change.type === "added" || change.type === "modified") {
+          updatePhotoToModerate(photo);
+        } else if (change.type === "removed") {
+          removePhotoToModerate(photo);
+        } else {
+          console.error(`the photo ${photo.id} as type ${change.type}`);
+        }
+      });
+    });
+}
+
+
+function writeModeration(photoId,userId, published) {
+  console.log(`The photo ${photoId} will have field published = ${published}`)
+
+  if (typeof published !== "boolean") {
+    throw new Error("Only boolean pls")
+  }
+  return firestore.collection('photos').doc(photoId).update({
     moderated: firebase.firestore.FieldValue.serverTimestamp(),
-    published: true,
+    published: published,
     moderator_id: userId
   });
 }
@@ -167,15 +203,29 @@ async function writeFeedback(data) {
   return await firestore.collection('feedbacks').add(data);
 }
 
+async function toggleUnreadFeedback(id, resolved, userId) {
+  return await firestore.collection('feedbacks').doc(id).update({
+    resolved: !resolved,
+    customerSupport_id: userId,
+    updated: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
 export default {
   onConnectionStateChanged,
-  fetchPhotos,
+  photosRT,
+  fetchStats,
+  fetchFeedbacks,
   getUser,
+  getFeedbackByID,
+  getPhotoByID,
   savePhoto,
   saveMetadata,
-  onPhotosToModerate,
-  rejectPhoto,
-  approvePhoto,
+  photosToModerateRT,
+  rejectPhoto: (photoId, userId) => writeModeration(photoId, userId, false),
+  approvePhoto: (photoId, userId) => writeModeration(photoId, userId, true),
   disconnect,
   writeFeedback,
+  toggleUnreadFeedback,
+  configObserver
 };

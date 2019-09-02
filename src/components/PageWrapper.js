@@ -6,8 +6,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import { withStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import BackIcon from '@material-ui/icons/ArrowBack';
-import { isIphoneWithNotchAndCordova, isIphoneAndCordova } from '../utils';
-import config from '../custom/config';
+import utils, { isIphoneWithNotchAndCordova, isIphoneAndCordova } from '../utils';
 const placeholderImage = process.env.PUBLIC_URL + "/custom/images/banner.svg";
 
 const styles = theme => ({
@@ -22,7 +21,7 @@ const styles = theme => ({
     bottom:0,
   },
   main:{
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing(1),
     display: 'flex',
     flexDirection:'column',
     flex: 1,
@@ -37,14 +36,14 @@ const styles = theme => ({
   },
   notchTop: {
     paddingTop:  isIphoneWithNotchAndCordova() ? 'env(safe-area-inset-top)' :
-      isIphoneAndCordova ? theme.spacing.unit * 1.5 : null
+      isIphoneAndCordova ? theme.spacing(1.5) : null
   },
   notchBottom: {
     paddingBottom: isIphoneWithNotchAndCordova() ? 'env(safe-area-inset-bottom)' : 0
   },
   logo: {
     height: '80px',
-    margin: theme.spacing.unit * 2,
+    margin: theme.spacing(2),
   },
 });
 
@@ -116,7 +115,7 @@ class PageWrapper extends React.Component {
               }
             </Toolbar>
           </AppBar>
-          {hasLogo && <img className={classes.logo} src={placeholderImage} alt={config.customiseString('about', 'Geovation')}/>}
+          {hasLogo && <img className={classes.logo} src={placeholderImage} alt={utils.customiseString('about', 'Geovation')}/>}
           <div className={classes.main}>
             {children}
           </div>

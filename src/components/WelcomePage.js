@@ -1,4 +1,5 @@
 import React from 'react';
+
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import LocationOn from '@material-ui/icons/LocationOn';
@@ -9,10 +10,10 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import Divider from '@material-ui/core/Divider';
-import './TutorialPage.scss';
 import { withStyles } from '@material-ui/core/styles';
-import { isIphoneWithNotchAndCordova } from '../utils';
-import config from '../custom/config';
+
+import './TutorialPage.scss';
+import utils, { isIphoneWithNotchAndCordova } from '../utils';
 const placeholderImage = process.env.PUBLIC_URL + "/custom/images/banner.svg";
 
 const styles = theme => ({
@@ -28,7 +29,7 @@ const styles = theme => ({
     zIndex: theme.zIndex.appBar
   },
   main:{
-    marginBottom: theme.spacing.unit,
+    marginBottom: theme.spacing(1),
     display: 'flex',
     flexDirection:'column',
     flex: 1,
@@ -37,10 +38,10 @@ const styles = theme => ({
   },
   logo: {
     height: '80px',
-    margin: theme.spacing.unit * 2,
+    margin: theme.spacing(2),
   },
   button: {
-    margin: theme.spacing.unit * 1.5,
+    margin: theme.spacing(1.5),
   },
   notchTop: {
     paddingTop: isIphoneWithNotchAndCordova() ? 'env(safe-area-inset-top)' : 0
@@ -53,15 +54,15 @@ const styles = theme => ({
 const tutorialSteps = {
   'camera': {
     photo: <CameraAlt />,
-    text: config.customiseString('tutorial', 'Walk around the city and take photos')
+    text: utils.customiseString('tutorial', 'Walk around the city and take photos')
   },
   'upload': {
     photo: <CloudUpload />,
-    text: config.customiseString('tutorial', 'Write info about the photos and upload it to the cloud')
+    text: utils.customiseString('tutorial', 'Write info about the photos and upload it to the cloud')
   },
   'location': {
     photo: <LocationOn />,
-    text: config.customiseString('tutorial', 'View your images in our interactive map')
+    text: utils.customiseString('tutorial', 'View your images in our interactive map')
   }
 };
 
@@ -69,9 +70,9 @@ class WelcomePage extends React.Component {
   render() {
     const { classes, handleClose } = this.props;
     return (
-      <Paper className={classes.root}>
+      <Paper elevation={2} className={classes.root}>
         <div className={classes.notchTop}/>
-        <img className={classes.logo} src={placeholderImage} alt={config.customiseString('about', 'Geovation')}/>
+        <img className={classes.logo} src={placeholderImage} alt={utils.customiseString('about', 'Geovation')}/>
         <div className={classes.main}>
           <List dense className={'list'}>
             { Object.values(tutorialSteps).map((value, index) => (
