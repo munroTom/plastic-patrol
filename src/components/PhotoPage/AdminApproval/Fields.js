@@ -63,6 +63,7 @@ class Fields extends Component {
         {this.props.fields.map((field, index) => {
           // skip the first field as it is displayed beside the picture
           if (index > 0) {
+            console.log(this.fieldsValues[field.name]);
             return (
               <div
                 key={index}

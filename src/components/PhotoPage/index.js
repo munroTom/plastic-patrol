@@ -1,27 +1,24 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
-import loadImage from 'blueimp-load-image';
-import dms2dec from 'dms2dec';
-import firebase from 'firebase/app';
+import React, { Component } from "react";
+import PropTypes from "prop-types";
+import loadImage from "blueimp-load-image";
+import dms2dec from "dms2dec";
+import firebase from "firebase/app";
+import _ from "lodash";
 
-import Button from '@material-ui/core/Button';
-import Dialog from '@material-ui/core/Dialog';
-import DialogActions from '@material-ui/core/DialogActions';
-import DialogContent from '@material-ui/core/DialogContent';
-import DialogContentText from '@material-ui/core/DialogContentText';
-import { withStyles } from '@material-ui/core/styles';
+import Button from "@material-ui/core/Button";
+import Link from "@material-ui/core/Link";
+import { withStyles } from "@material-ui/core/styles";
 
-import config from '../../custom/config';
-import { gtagEvent } from '../../gtag.js';
-import './style.scss';
-import dbFirebase from '../../dbFirebase';
-import { isIphoneWithNotchAndCordova, device } from '../../utils';
+import config from "../../custom/config";
+import { gtagEvent } from "../../gtag.js";
+import dbFirebase from "../../dbFirebase";
+import { isIphoneWithNotchAndCordova, device } from "../../utils";
 
-import PageWrapper from '../PageWrapper';
-import LinearProgress from '@material-ui/core/LinearProgress';
-import Fields from './AdminApproval/Fields';
-import Link from '@material-ui/core/Link';
-import _ from 'lodash';
+import PageWrapper from "../PageWrapper";
+import Fields from "./Fields";
+import CategoryField from "./CategoryField";
+import Dialogs from "./Dialogs";
+import "./style.scss";
 
 const emptyState = {
   imgSrc: null,
@@ -366,6 +363,7 @@ class PhotoPage extends Component {
           {this.state.next
             ?
             <div className={classes.fields}>
+              <CategoryField />
               <Fields
                 handleChange={this.handleChangeFields}
                 sendFile={this.sendFile}
