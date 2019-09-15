@@ -14,8 +14,11 @@ const CategoryField = ({ handleClickRemove, handleChange }) => {
   const [brand, setBrand] = useState("");
   const [selectedOption, setSelectedOption] = useState("");
 
-  const handleChangeCallback = useCallback(value => handleChange(value));
+  const handleChangeCallback = useCallback(value => handleChange(value), [
+    handleChange
+  ]);
 
+  //TODO: come up with a nicer way of doing this with the whole tree
   useEffect(() => {
     const validBrand = validateString(brand);
     const validCategory =

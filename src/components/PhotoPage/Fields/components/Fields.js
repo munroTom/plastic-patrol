@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState } from "react";
 
 import Button from "@material-ui/core/Button";
 
@@ -12,18 +12,12 @@ const Fields = ({ imgSrc, handleChange }) => {
   const [categoryValues, setCategoryValues] = useState(INITIAL_CATEGORY_VALUES);
   const [childIndex, setNextChildIndex] = useState(categoryValues.length);
   const [totalCount, setTotalCount] = useState(0);
+  const [anyCategoryErrors, setAnyCategoryErrors] = useState(false);
 
   const handleClickAdd = categoryValues => {
     categoryValues.push({ keyIndex: childIndex, values: {} });
     setNextChildIndex(childIndex + 1);
     setCategoryValues(categoryValues);
-  };
-
-  const handleClickRemove = index => e => {
-    if (categoryValues.length <= 1) return;
-    setCategoryValues(
-      categoryValues.filter(({ keyIndex }) => index !== keyIndex)
-    );
   };
 
   const handleCategoryChange = index => newValue => {
@@ -45,9 +39,17 @@ const Fields = ({ imgSrc, handleChange }) => {
       return categoryValue;
     });
 
+    setAnyCategoryErrors(error);
     handleChange(error, updatedCategoryValues);
     setCategoryValues(updatedCategoryValues);
     setTotalCount(count);
+  };
+
+  const handleClickRemove = index => e => {
+    if (categoryValues.length <= 1) return;
+    setCategoryValues(
+      categoryValues.filter(({ keyIndex }) => index !== keyIndex)
+    );
   };
 
   return (
@@ -70,7 +72,7 @@ const Fields = ({ imgSrc, handleChange }) => {
       })}
       <div className="Fields__button">
         <Button
-          // disabled={anyCategoryErrors}
+          disabled={anyCategoryErrors}
           fullWidth
           variant="outlined"
           onClick={() => handleClickAdd(categoryValues)}
