@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import loadImage from "blueimp-load-image";
 import dms2dec from "dms2dec";
 import firebase from "firebase/app";
-import _ from "lodash";
 
 import Button from "@material-ui/core/Button";
 import Link from "@material-ui/core/Link";
@@ -16,7 +15,6 @@ import { isIphoneWithNotchAndCordova, device } from "../../utils";
 
 import PageWrapper from "../PageWrapper";
 import Fields from "./Fields";
-import CategoryField from "./CategoryField";
 import Dialogs from "./Dialogs";
 import "./style.scss";
 
@@ -166,24 +164,22 @@ class PhotoPage extends Component {
       return;
     }
 
-    const fieldsJustValues = _.reduce(this.state.fieldsValues, (a, v, k) => {
-      a[k] = v.value;
-      return a;
-    }, {});
-
-    let filteredFields = {};
-    Object.entries(fieldsJustValues).forEach(([key,value]) =>{
-      if(value){
-        filteredFields[key] = typeof value === 'string' ? value.trim() : value;
-
-        const fieldDefinition = config.PHOTO_FIELDS[key];
-        if (fieldDefinition.sanitize) {
-          fieldDefinition.sanitize(value);
-        }
-      }
+    const { fieldsValues } = this.state;
+    let totalCount = 0;
+    const fieldValuesToSend = fieldsValues.map(value => {
+      const {
+        values: { error, number, ...otherNonExtraneousFields }
+      } = value;
+      const numberAsNumber = Number(number);
+      totalCount += numberAsNumber;
+      return { number: numberAsNumber, ...otherNonExtraneousFields };
     });
 
-    const data = { ...location, ...filteredFields};
+    const data = {
+      ...location,
+      pieces: totalCount,
+      categories: fieldValuesToSend
+    };
 
     this.setState({ sending: true, sendingProgress: 0, enabledUploadButton :false });
     this.uploadTask = null;
@@ -363,7 +359,6 @@ class PhotoPage extends Component {
           {this.state.next
             ?
             <div className={classes.fields}>
-              <CategoryField />
               <Fields
                 handleChange={this.handleChangeFields}
                 sendFile={this.sendFile}

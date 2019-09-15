@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
 import RemoveIcon from "@material-ui/icons/RemoveCircleOutline";
 
@@ -9,14 +9,12 @@ import CategoryDropdown from "./CategoryDropdown";
 
 import "./Category.scss";
 
-const CategoryField = ({ handleClickRemove }) => {
-  const [numberOfPieces, setNumberOfPieces] = useState(null);
-  const [numberOfPiecesError, setNumberOfPiecesError] = useState(false);
-  const [brand, setBrand] = useState(null);
-  const [brandError, setBrandError] = useState(false);
-  const [selectedOption, setSelectedOption] = useState(null);
+const CategoryField = ({ handleClickRemove, handleChange }) => {
+  const [numberOfPieces, setNumberOfPieces] = useState("");
+  const [brand, setBrand] = useState("");
+  const [selectedOption, setSelectedOption] = useState("");
 
-  const [categoryFieldInfo, setCategoryFieldInfo] = useState(null);
+  const handleChangeCallback = useCallback(value => handleChange(value));
 
   useEffect(() => {
     const validBrand = validateString(brand);
@@ -25,7 +23,7 @@ const CategoryField = ({ handleClickRemove }) => {
       validateIsPositiveNumber(numberOfPieces) &&
       validateIsPositiveNumber(selectedOption && selectedOption.key);
 
-    setCategoryFieldInfo({
+    handleChangeCallback({
       leafKey: selectedOption && selectedOption.key,
       number: numberOfPieces,
       brand: validBrand && brand.trim(),

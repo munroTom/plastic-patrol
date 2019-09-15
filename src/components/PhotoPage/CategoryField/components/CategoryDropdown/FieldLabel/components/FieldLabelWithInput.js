@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import classnames from "classnames";
 
 import FieldLabel from "./FieldLabel";
@@ -18,7 +18,7 @@ const FieldLabelWithInput = ({
     if (typeof validationFn === "function") {
       setError(!validationFn(value));
     }
-  }, [value]);
+  }, [value, validationFn]);
 
   return (
     <FieldLabel {...fieldLabelProps}>

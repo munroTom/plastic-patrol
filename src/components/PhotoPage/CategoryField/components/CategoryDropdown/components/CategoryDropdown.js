@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from "react";
+import React, { useRef } from "react";
 import Select, { components } from "react-select";
 
 import MenuItem from "@material-ui/core/MenuItem";
@@ -80,14 +80,14 @@ const FieldLabelWithDropdowns = ({
   setValue,
   ...fieldLabelProps
 }) => {
-  const dropdownOptions = useCallback(getDropdownOptions(data));
+  const dropdownOptionsRef = useRef(getDropdownOptions(data));
 
   return (
     <FieldLabel {...fieldLabelProps}>
       <Select
         components={customComponents}
         placeholder={placeholder}
-        options={dropdownOptions}
+        options={dropdownOptionsRef.current}
         onChange={value => setValue(value)}
         value={value}
         isClearable
