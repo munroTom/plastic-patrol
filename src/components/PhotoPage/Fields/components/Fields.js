@@ -60,6 +60,9 @@ const Fields = ({ imgSrc, handleChange }) => {
           Total number of pieces in photo: {totalCount}
         </div>
       </div>
+      <div className="Fields__instruction">
+        Identify each piece of rubbish in the photo
+      </div>
       {categoryValues.map(({ keyIndex }) => {
         return (
           <div key={keyIndex} className="Fields__category">
