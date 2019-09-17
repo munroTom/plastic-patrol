@@ -1,0 +1,28 @@
+.MiddleSlide__container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  flex-direction: column;
+  position: relative;
+}
+
+.MiddleSlide__topText {
+  color: white;
+  font-family: rockedRegular;
+  font-weight: lighter;
+  -webkit-font-smoothing: antialiased;
+  font-size: 30px;
+  margin: 5px;
+}
+
+.MiddleSlide__image {
+  max-height: 40vh;
+}
+
+.MiddleSlide__bottomText {
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  margin: 10px 30px;
+}
