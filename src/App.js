@@ -24,7 +24,6 @@ import LoginFirebase from "./components/LoginFirebase";
 import Login from "./components/Login";
 import AboutPage from "./components/AboutPage";
 import LeaderboardPage from "./components/Leaderboard";
-// import WelcomePage from "./components/WelcomePage";
 import WriteFeedbackPage from "./components/WriteFeedbackPage";
 import DrawerContainer from "./components/DrawerContainer";
 import TermsDialog from "./components/TermsDialog";
