@@ -1,17 +1,11 @@
+@import "../../common.scss";
+
 .MiddleSlide__container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  flex-direction: column;
-  position: relative;
+  @include commonContainer;
 }
 
 .MiddleSlide__topText {
-  color: white;
-  font-family: rockedRegular;
-  font-weight: lighter;
-  -webkit-font-smoothing: antialiased;
+  @include rockedRegularTextFontWeightLight;
   font-size: 30px;
   margin: 5px;
 }
@@ -21,7 +15,6 @@
 }
 
 .MiddleSlide__bottomText {
-  color: white;
   font-size: 20px;
   font-weight: bold;
   margin: 10px 30px;
