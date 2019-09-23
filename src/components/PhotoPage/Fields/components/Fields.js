@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 
 import Button from "@material-ui/core/Button";
 
@@ -45,12 +45,25 @@ const Fields = ({ imgSrc, handleChange }) => {
     setTotalCount(count);
   };
 
-  const handleClickRemove = index => e => {
-    if (categoryValues.length <= 1) return;
-    setCategoryValues(
-      categoryValues.filter(({ keyIndex }) => index !== keyIndex)
-    );
-  };
+  const handleClickRemove = useCallback(
+    index => e => {
+      if (categoryValues.length <= 1) return;
+
+      const filteredCategoryValues = categoryValues.filter(
+        ({ keyIndex }) => index !== keyIndex
+      );
+
+      let anyErrors = false;
+      filteredCategoryValues.forEach(({ values: { error } }) => {
+        if (error) anyErrors = true;
+      });
+
+      setCategoryValues(filteredCategoryValues);
+      setAnyCategoryErrors(anyErrors);
+      handleChange(anyErrors, filteredCategoryValues);
+    },
+    [categoryValues]
+  );
 
   return (
     <>
