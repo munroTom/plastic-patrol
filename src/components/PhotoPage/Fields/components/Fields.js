@@ -1,6 +1,8 @@
 import React, { useState, useCallback } from "react";
-
+import classnames from "classnames";
 import Button from "@material-ui/core/Button";
+
+import useOnOutsideClick from "hooks/useOnOutsideClick";
 
 import CategoryField from "../../CategoryField";
 
@@ -13,6 +15,7 @@ const Fields = ({ imgSrc, handleChange }) => {
   const [childIndex, setNextChildIndex] = useState(categoryValues.length);
   const [totalCount, setTotalCount] = useState(0);
   const [anyCategoryErrors, setAnyCategoryErrors] = useState(false);
+  const [photoEnlarged, setPhotoEnlarged] = useState(false);
 
   const handleClickAdd = categoryValues => {
     categoryValues.push({ keyIndex: childIndex, values: {} });
@@ -65,10 +68,22 @@ const Fields = ({ imgSrc, handleChange }) => {
     [categoryValues]
   );
 
+  const imgRef = useOnOutsideClick(() => setPhotoEnlarged(false));
+
   return (
     <>
       <div className="Fields__container">
-        <img src={imgSrc} alt={""} className={"Fields__pictureThumbnail"} />
+        <div className="Fields__pictureThumbnailContainer">
+          <img
+            src={imgSrc}
+            alt={""}
+            className={classnames("Fields__pictureThumbnail", {
+              Fields__pictureThumbnailEnlarged: photoEnlarged
+            })}
+            ref={imgRef}
+            onClick={() => setPhotoEnlarged(!photoEnlarged)}
+          />
+        </div>
         <div className="Fields__numberOfPieces">
           Total number of pieces in photo: {totalCount}
         </div>
