@@ -46,23 +46,27 @@ const CategoryField = ({ handleClickRemove, handleChange }) => {
         <RemoveIcon onClick={handleClickRemove} />
       </div>
 
-      <FieldLabelWithInput
-        label={"Brand of rubbish"}
-        placeholder={'e.g. coca cola or "none"'}
-        value={brand}
-        setValue={setBrand}
-        validationFn={validateString}
-        required
-      />
+      {selectedOption && (
+        <>
+          <FieldLabelWithInput
+            label={`Brand of ${selectedOption.label}`}
+            placeholder={'e.g. coca cola or "none"'}
+            value={brand}
+            setValue={setBrand}
+            validationFn={validateString}
+            required
+          />
 
-      <FieldLabelWithInput
-        label="Number of pieces"
-        placeholder={"e.g. 1"}
-        validationFn={validateIsPositiveNumber}
-        value={numberOfPieces}
-        setValue={setNumberOfPieces}
-        required
-      />
+          <FieldLabelWithInput
+            label="Number of pieces"
+            placeholder={"e.g. 1"}
+            validationFn={validateIsPositiveNumber}
+            value={numberOfPieces}
+            setValue={setNumberOfPieces}
+            required
+          />
+        </>
+      )}
     </div>
   );
 };
