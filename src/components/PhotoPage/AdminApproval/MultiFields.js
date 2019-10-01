@@ -1,11 +1,9 @@
-import React from 'react';
-import SelectControlSingleValue from './SelectControlSingleValue';
-import RemoveIcon from '@material-ui/icons/RemoveCircleOutline';
-import Button from '@material-ui/core/Button';
-import { withStyles } from '@material-ui/core/styles';
-import { getValueAndAncestorsFromTree } from '../../../utils';
-
-import CategoryField from "./CategoryField";
+import React from "react";
+import SelectControlSingleValue from "./SelectControlSingleValue";
+import RemoveIcon from "@material-ui/icons/RemoveCircleOutline";
+import Button from "@material-ui/core/Button";
+import { withStyles } from "@material-ui/core/styles";
+import { getValueAndAncestorsFromTree } from "../../utils";
 
 const styles = theme => ({});
 
@@ -98,35 +96,112 @@ class MultiFields extends React.Component {
     this.checkErrorAndPropagateResToParent(fieldValues);
   };
 
+  static toFormattedString = (s, data) => {
+    const categories = typeof s === "string" ? JSON.parse(s) : s;
+    let categoryId;
+    return (
+      categories &&
+      categories.map((category, index) => (
+        <div key={index}>
+          {index === 0 && <br />}
+          <div>Category {index}</div>
+          {Object.entries(category).map(([key, value]) => {
+            let formattedValue = value;
+            let formattedKey = key;
+            if (key === "leafkey") {
+              formattedValue = getValueAndAncestorsFromTree(
+                data,
+                value
+              ).toString();
+              categoryId = value;
+              formattedKey = "category";
+            }
+            return (
+              <div style={{ display: "flex" }} key={key}>
+                <div style={{ fontWeight: 100 }}>{formattedKey}</div> :{" "}
+                <div>{formattedValue}</div>
+              </div>
+            );
+          })}
+          <div style={{ display: "flex" }}>
+            <div style={{ fontWeight: 100 }}>categoryId</div> :{" "}
+            <div>{categoryId}</div>
+          </div>
+          <br />
+        </div>
+      ))
+    );
+  };
+
   componentDidMount() {
     this.handleClickAdd();
   }
 
   render() {
     return (
-      <>
+      <div>
         {this.state.fieldValues.map((fieldValue, index) => {
           return (
             <div key={index}>
-              <CategoryField
-                handleClickRemove={this.handleClickRemove(index)}
-              />
-              {index === this.state.fieldValues.length - 1 && (
-                <div style={{ marginTop: this.props.theme.spacing(1.5) }}>
-                  <Button
-                    // disabled={this.props.error}
-                    fullWidth
-                    variant="outlined"
-                    onClick={this.handleClickAdd}
-                  >
-                    add another category
-                  </Button>
+              <br />
+              <br />
+              <div style={{ display: "flex" }}>
+                <SelectControlSingleValue
+                  single={fieldValue.leafkey.value}
+                  handleChangeSelect={this.handleChangeSelect(index)}
+                  {...this.props}
+                />
+                <div
+                  style={{
+                    marginBottom: this.props.theme.spacing(0.5),
+                    display: "flex",
+                    alignItems: "flex-end"
+                  }}
+                >
+                  <RemoveIcon onClick={this.handleClickRemove(index)} />
                 </div>
-              )}
+              </div>
+              {this.props.field.subfields &&
+                fieldValue &&
+                fieldValue.leafkey.value && (
+                  <div>
+                    {Object.values(this.props.field.subfields).map(
+                      (subfield, index_subfield) => {
+                        return (
+                          <div
+                            key={"subcomponent_" + index_subfield}
+                            style={{ marginTop: this.props.theme.spacing(1) }}
+                          >
+                            <subfield.component
+                              field={subfield}
+                              handleChange={this.handleChangeTitleTextField(
+                                index,
+                                subfield
+                              )}
+                              fieldValue={fieldValue[subfield.name]}
+                            />
+                          </div>
+                        );
+                      }
+                    )}
+                    {index === this.state.fieldValues.length - 1 && (
+                      <div style={{ marginTop: this.props.theme.spacing(1.5) }}>
+                        <Button
+                          disabled={this.props.error}
+                          fullWidth
+                          variant="outlined"
+                          onClick={this.handleClickAdd}
+                        >
+                          add another category
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
           );
         })}
-      </>
+      </div>
     );
   }
 }
