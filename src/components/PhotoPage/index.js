@@ -19,7 +19,7 @@ import { isIphoneWithNotchAndCordova, device } from '../../utils';
 
 import PageWrapper from '../PageWrapper';
 import LinearProgress from '@material-ui/core/LinearProgress';
-import Fields from './Fields';
+import Fields from './AdminApproval/Fields';
 import Link from '@material-ui/core/Link';
 import _ from 'lodash';
 
