@@ -2,44 +2,58 @@ import config from './custom/config';
 
 export const gtagInit = () => {
   if (window.cordova) {
-    window.ga.startTrackerWithId(config.GA_TRACKING_ID, 1, () => {
+    window.ga.startTrackerWithId(config.GA_PROPERTY_ID, 1, () => {
       window.ga.setAppVersion(process.env.REACT_APP_VERSION);
-      window.ga.trackEvent('Tech','type','mobile');
-      window.ga.trackEvent('Tech','app version',process.env.REACT_APP_VERSION);
-      window.ga.trackEvent('Tech','build number',process.env.REACT_APP_BUILD_NUMBER);
-      window.ga.trackView('/#/');
+      window.ga.trackEvent("Tech", "type", "mobile");
+      window.ga.trackEvent(
+        "Tech",
+        "app version",
+        process.env.REACT_APP_VERSION
+      );
+      window.ga.trackEvent(
+        "Tech",
+        "build number",
+        process.env.REACT_APP_BUILD_NUMBER
+      );
+      window.ga.trackView("/#/");
     });
   }
   else{
-    const script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${config.GA_TRACKING_ID}`;
-    document.body.appendChild(script);
+        const script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = `https://www.googletagmanager.com/gtag/js?id=${config.GA_PROPERTY_ID}`;
+        document.body.appendChild(script);
 
-    gtag('js', new Date());
-    gtag('config', config.GA_TRACKING_ID, {
-      'page_path' : '/#/'
-    });
+        gtag("js", new Date());
 
-    gtag('event', 'app version', {
-      'event_category' : 'Tech',
-      'event_label' : process.env.REACT_APP_VERSION,
-      'non_interaction': true
-    });
+        // this is the new analytics
+        gtag("config", config.GA_PROPERTY_ID, {
+          page_path: "/#/"
+        });
 
-    gtag('event', 'build number', {
-      'event_category' : 'Tech',
-      'event_label' : process.env.REACT_APP_BUILD_NUMBER,
-      'non_interaction': true
-    });
+        // it will phased out
+        gtag("config", config.GA_TRACKING_ID, {
+          page_path: "/#/"
+        });
 
-    gtag('event', 'type', {
-      'event_category' : 'Tech',
-      'event_label' : 'web',
-      'non_interaction': true
-    });
+        gtag("event", "app version", {
+          event_category: "Tech",
+          event_label: process.env.REACT_APP_VERSION,
+          non_interaction: true
+        });
 
-  }
+        gtag("event", "build number", {
+          event_category: "Tech",
+          event_label: process.env.REACT_APP_BUILD_NUMBER,
+          non_interaction: true
+        });
+
+        gtag("event", "type", {
+          event_category: "Tech",
+          event_label: "web",
+          non_interaction: true
+        });
+      }
 }
 
 export const gtagPageView = (pathname) => {
@@ -47,6 +61,10 @@ export const gtagPageView = (pathname) => {
     window.ga.trackView('/#' + pathname);
   }
   else{
+    gtag("config", config.GA_PROPERTY_ID, {
+      page_path: "/#" + pathname
+    });
+
     gtag('config', config.GA_TRACKING_ID, {
       'page_path' : '/#' + pathname
     });
