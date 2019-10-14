@@ -14,5 +14,6 @@ export const getDropdownOptions = categoriesObject => {
   }
 
   getNodesInLowestHierarchy(categoriesObject);
+  
   return sortArrayByObjectKey(items, "label");
 };
