@@ -16,7 +16,7 @@ const Fields = ({ imgSrc, handleChange, handleTotalCountChange }) => {
   const [categoryValues, setCategoryValues] = useState(INITIAL_CATEGORY_VALUES);
   const [childIndex, setNextChildIndex] = useState(categoryValues.length);
   const [totalCount, setTotalCount] = useState(null);
-  const [anyCategoryErrors, setAnyCategoryErrors] = useState(false);
+  const [anyCategoryErrors, setAnyCategoryErrors] = useState(true);
   const [totalCountErrors, setTotalCountErrors] = useState(true);
   const [photoEnlarged, setPhotoEnlarged] = useState(false);
 
