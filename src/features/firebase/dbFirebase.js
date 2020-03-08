@@ -1,9 +1,10 @@
 import firebase from "firebase/app";
 import _ from "lodash";
 
-import firebaseApp from "./firebaseInit.js";
-import config from "./custom/config";
 import * as localforage from "localforage";
+
+import config from "custom/config";
+import firebaseApp from "./firebaseInit.js";
 
 const firestore = firebase.firestore();
 const storageRef = firebase.storage().ref();
